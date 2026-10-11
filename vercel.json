@@ -1,6 +1,6 @@
 {
   "functions": {
-    "app/main.py": {
+    "index.py": {
       "maxDuration": 120,
       "excludeFiles": "{tests/**,data/**,.venv/**,**/__pycache__/**,*.md,uv.lock}"
     }
