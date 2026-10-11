@@ -1,0 +1,8 @@
+.env
+.env.*
+data/
+tests/
+.venv/
+__pycache__/
+.pytest_cache/
+*.md
