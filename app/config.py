@@ -22,8 +22,16 @@ DATA_DIR = Path(os.getenv("ATHARVA_DATA_DIR") or ("/tmp/atharva" if ON_VERCEL el
 UPLOADS_DIR = DATA_DIR / "uploads"
 OUTPUTS_DIR = DATA_DIR / "outputs"
 
-for d in (DATA_DIR, UPLOADS_DIR, OUTPUTS_DIR):
-    d.mkdir(parents=True, exist_ok=True)
+try:
+    for d in (DATA_DIR, UPLOADS_DIR, OUTPUTS_DIR):
+        d.mkdir(parents=True, exist_ok=True)
+except OSError:  # read-only disk (serverless): fall back to the temp folder instead of crashing
+    import tempfile
+
+    DATA_DIR = Path(tempfile.gettempdir()) / "atharva"
+    UPLOADS_DIR, OUTPUTS_DIR = DATA_DIR / "uploads", DATA_DIR / "outputs"
+    for d in (DATA_DIR, UPLOADS_DIR, OUTPUTS_DIR):
+        d.mkdir(parents=True, exist_ok=True)
 
 load_dotenv(ENV_FILE)
 os.environ.setdefault("MPLCONFIGDIR", str(DATA_DIR / "mpl"))  # matplotlib needs a writable cache folder
