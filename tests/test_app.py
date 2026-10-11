@@ -300,3 +300,15 @@ def test_todo_stats_show_progress():
     assert (st["total"], st["done"], st["open"], st["percent"]) == (4, 1, 3, 25)
     assert st["overdue"] == 1 and st["high_open"] == 0 and len(st["last7"]) == 7 and st["last7"][-1]["done"] == 1
     assert "recent_files" not in other.get("/api/today").json()
+
+
+def test_home_lists_tomorrows_tasks():
+    other = TestClient(app)
+    other.post("/api/signup", json={"name": "Tom", "email": "tom@example.com", "password": "password222"})
+    assert other.get("/api/today").json()["tomorrow"] == []
+    tomorrow = (now_local().date() + timedelta(days=1)).isoformat()
+    other.post("/api/todos", json={"title": "pack bags", "due": tomorrow})
+    other.post("/api/todos", json={"title": "someday thing"})
+    t = other.get("/api/today").json()
+    assert [x["title"] for x in t["tomorrow"]] == ["pack bags"]
+    assert "pack bags" not in [x["title"] for x in t["upcoming"]] and "someday thing" in [x["title"] for x in t["upcoming"]]

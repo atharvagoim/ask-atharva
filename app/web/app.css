@@ -611,3 +611,14 @@ dialog.photo-sheet { width: min(420px, 100%); }
 .pg-cap { margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 600; opacity: 0.65; }
 @media (max-width: 380px) { .pg-top { flex-direction: column; align-items: stretch; } .ring { align-self: center; } }
 @media (min-width: 900px) { .progress { padding: 26px; } .ring { width: 140px; height: 140px; } .ring-mid b { font-size: 32px; } .pg-week { height: 120px; } }
+
+/* ---------- Tomorrow's tasks on Home ---------- */
+#t-tomorrow .tomorrow { padding: 18px 18px 8px; animation: pop 0.5s 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards; }
+.tomorrow .list { margin-top: 6px; }
+.tomorrow .item { border-color: rgba(21, 19, 43, 0.12); padding: 11px 0; }
+.tomorrow .title { font-size: 16px; font-weight: 600; }
+.tomorrow .check { border-color: rgba(21, 19, 43, 0.55); }
+.tomorrow .check:hover { border-color: #15132b; color: #15132b; }
+.tomorrow .check[aria-checked="true"] { background: #15132b; border-color: #15132b; color: #fff; }
+.tomorrow .pill { background: rgba(255, 255, 255, 0.6); color: #15132b; }
+.tomorrow .pill.high { background: #ffd6d0; color: #a8332b; }

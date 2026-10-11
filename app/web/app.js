@@ -322,6 +322,7 @@ async function renderToday() {
             </div>
           </section>
         </div>
+        <div id="t-tomorrow"></div>
       </div>
       <aside class="home-side">
         <h2 class="section-title">Your progress</h2>
@@ -384,6 +385,14 @@ async function renderToday() {
     ? `<ul class="list">${todoList.map((t) => todoRow(t, { compact: true })).join("")}</ul><a class="more" href="#/todos">See all ${icon("arrow")}</a>`
     : `<p class="empty">Nothing on your list.</p><a class="more" href="#/todos">Add one ${icon("arrow")}</a>`;
   bindTodoRows($("#t-todos"), () => renderToday());
+
+  const tom = $("#t-tomorrow");
+  if (data.tomorrow?.length) {
+    tom.innerHTML = `<h2 class="section-title">Tomorrow</h2>
+      <section class="card tone-yellow tomorrow"><span class="tag">${data.tomorrow.length} task${data.tomorrow.length === 1 ? "" : "s"} tomorrow</span>
+        <ul class="list">${data.tomorrow.map((t) => todoRow(t, { compact: true })).join("")}</ul></section>`;
+    bindTodoRows(tom, () => renderToday());
+  }
 
   const cal = $("#t-cal");
   if (data.events.length) {
