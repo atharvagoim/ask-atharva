@@ -312,3 +312,9 @@ def test_home_lists_tomorrows_tasks():
     t = other.get("/api/today").json()
     assert [x["title"] for x in t["tomorrow"]] == ["pack bags"]
     assert "pack bags" not in [x["title"] for x in t["upcoming"]] and "someday thing" in [x["title"] for x in t["upcoming"]]
+    # the days after tomorrow (within a week) are listed too; anything further away stays in the main list
+    other.post("/api/todos", json={"title": "in three days", "due": (now_local().date() + timedelta(days=3)).isoformat()})
+    other.post("/api/todos", json={"title": "next month", "due": (now_local().date() + timedelta(days=30)).isoformat()})
+    t = other.get("/api/today").json()
+    assert [x["title"] for x in t["later"]] == ["in three days"]
+    assert "next month" in [x["title"] for x in t["upcoming"]] and "in three days" not in [x["title"] for x in t["upcoming"]]

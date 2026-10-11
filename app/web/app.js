@@ -383,14 +383,25 @@ async function renderToday() {
   $("#t-count").textContent = data.open_count ? `${data.open_count} open` : "All clear";
   $("#t-todos").innerHTML = todoList.length
     ? `<ul class="list">${todoList.map((t) => todoRow(t, { compact: true })).join("")}</ul><a class="more" href="#/todos">See all ${icon("arrow")}</a>`
-    : `<p class="empty">Nothing on your list.</p><a class="more" href="#/todos">Add one ${icon("arrow")}</a>`;
+    : `<p class="empty">${data.open_count ? "Nothing for today. See what's coming up below." : "Nothing on your list."}</p><a class="more" href="#/todos">${data.open_count ? "See all" : "Add one"} ${icon("arrow")}</a>`;
   bindTodoRows($("#t-todos"), () => renderToday());
 
+  // Tomorrow, then each of the following days (up to a week ahead) that has something due.
   const tom = $("#t-tomorrow");
+  const byDate = new Map();
+  for (const t of data.later || []) (byDate.get(t.due) || byDate.set(t.due, []).get(t.due)).push(t);
+  const parts = [];
   if (data.tomorrow?.length) {
-    tom.innerHTML = `<h2 class="section-title">Tomorrow</h2>
+    parts.push(`<h2 class="section-title">Tomorrow</h2>
       <section class="card tone-yellow tomorrow"><span class="tag">${data.tomorrow.length} task${data.tomorrow.length === 1 ? "" : "s"} tomorrow</span>
-        <ul class="list">${data.tomorrow.map((t) => todoRow(t, { compact: true })).join("")}</ul></section>`;
+        <ul class="list">${data.tomorrow.map((t) => todoRow(t, { compact: true })).join("")}</ul></section>`);
+  }
+  if (byDate.size) {
+    parts.push(`<h2 class="section-title">Coming up</h2>
+      <section class="card later">${[...byDate.entries()].map(([iso, list]) => `<p class="group-label">${esc(dayLabel(iso))}</p><ul class="list">${list.map((t) => todoRow(t, { compact: true })).join("")}</ul>`).join("")}</section>`);
+  }
+  if (parts.length) {
+    tom.innerHTML = parts.join("");
     bindTodoRows(tom, () => renderToday());
   }
 
