@@ -291,6 +291,7 @@ def today():
     later = [t.to_dict() for t in open_todos if t.due and tomorrow_d < t.due <= week_end]  # the days after tomorrow, up to a week out
     upcoming = [t.to_dict() for t in open_todos if not (t.due and t.due <= week_end)][:6]  # undated or further away
     events = cal.events_for_day(today_d, 1)
+    tomorrow_events = cal.events_for_day(tomorrow_d, 1)
     done_today = sum(
         1 for t in todos.list_todos("done") if t.completed_at and t.completed_at.astimezone(settings().tz).date() == today_d
     )
@@ -299,6 +300,7 @@ def today():
         "due": due,
         "upcoming": upcoming,
         "tomorrow": tomorrow,
+        "tomorrow_events": tomorrow_events,
         "later": later,
         "open_count": len(open_todos),
         "done_today": done_today,

@@ -627,3 +627,13 @@ dialog.photo-sheet { width: min(420px, 100%); }
 .later .group-label { margin: 14px 0 0; color: var(--ink); }
 .later .group-label:first-child { margin-top: 0; }
 .later .item { padding: 10px 0; }
+
+/* ---------- Tomorrow card: events + quick add ---------- */
+.tomorrow .tm-events .item { align-items: flex-start; }
+.tm-time { flex: none; min-width: 66px; font-size: 14px; font-weight: 800; padding-top: 1px; }
+.tomorrow .tm-events .meta { color: rgba(21, 19, 43, 0.65); }
+.tm-add { display: flex; gap: 8px; margin: 10px 0 12px; }
+.tm-add .input { flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.75); border-color: transparent; color: #15132b; }
+.tm-add .input::placeholder { color: rgba(21, 19, 43, 0.55); }
+.tm-add .btn { width: 50px; min-width: 50px; padding: 0; flex: none; }
+.tomorrow .empty { padding: 12px 2px 4px; color: rgba(21, 19, 43, 0.7); }

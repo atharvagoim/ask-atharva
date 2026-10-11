@@ -318,3 +318,13 @@ def test_home_lists_tomorrows_tasks():
     t = other.get("/api/today").json()
     assert [x["title"] for x in t["later"]] == ["in three days"]
     assert "next month" in [x["title"] for x in t["upcoming"]] and "in three days" not in [x["title"] for x in t["upcoming"]]
+
+
+def test_home_always_includes_tomorrows_events():
+    other = TestClient(app)
+    other.post("/api/signup", json={"name": "Eve", "email": "eve@example.com", "password": "password333"})
+    assert other.get("/api/today").json()["tomorrow_events"] == []
+    tomorrow = (now_local().date() + timedelta(days=1)).isoformat()
+    other.post("/api/calendar/events", json={"title": "Dinner", "date": tomorrow, "time": "20:00"})
+    t = other.get("/api/today").json()
+    assert [e["title"] for e in t["tomorrow_events"]] == ["Dinner"] and t["events"] == []

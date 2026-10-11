@@ -391,19 +391,36 @@ async function renderToday() {
   const byDate = new Map();
   for (const t of data.later || []) (byDate.get(t.due) || byDate.set(t.due, []).get(t.due)).push(t);
   const parts = [];
-  if (data.tomorrow?.length) {
-    parts.push(`<h2 class="section-title">Tomorrow</h2>
-      <section class="card tone-yellow tomorrow"><span class="tag">${data.tomorrow.length} task${data.tomorrow.length === 1 ? "" : "s"} tomorrow</span>
-        <ul class="list">${data.tomorrow.map((t) => todoRow(t, { compact: true })).join("")}</ul></section>`);
-  }
+  // Tomorrow is always on Home: tasks, calendar events, and a one-tap way to add something.
+  const tmTasks = data.tomorrow || [];
+  const tmEvents = data.tomorrow_events || [];
+  const tmTag = !tmTasks.length && !tmEvents.length ? "Nothing planned"
+    : [tmTasks.length ? `${tmTasks.length} task${tmTasks.length === 1 ? "" : "s"}` : "", tmEvents.length ? `${tmEvents.length} event${tmEvents.length === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · ");
+  parts.push(`<h2 class="section-title">Tomorrow</h2>
+    <section class="card tone-yellow tomorrow"><span class="tag">${esc(tmTag)}</span>
+      ${tmEvents.length ? `<ul class="list tm-events">${tmEvents.map((e) => `<li class="item"><span class="tm-time">${e.all_day ? "All day" : esc(timeOf(e.start))}</span><div class="grow"><div class="title">${esc(e.title)}</div>${e.location ? `<div class="meta">${esc(e.location)}</div>` : ""}</div></li>`).join("")}</ul>` : ""}
+      ${tmTasks.length ? `<ul class="list" id="tm-tasks">${tmTasks.map((t) => todoRow(t, { compact: true })).join("")}</ul>` : ""}
+      ${!tmTasks.length && !tmEvents.length ? `<p class="empty">Nothing planned for tomorrow yet.</p>` : ""}
+      <form class="tm-add" id="add-tomorrow"><label class="sr-only" for="tm-title">Add a task for tomorrow</label><input id="tm-title" class="input" placeholder="Add for tomorrow…" maxlength="300" autocomplete="off" enterkeyhint="done"><button class="btn" aria-label="Add for tomorrow">${icon("plus")}</button></form>
+    </section>`);
   if (byDate.size) {
     parts.push(`<h2 class="section-title">Coming up</h2>
       <section class="card later">${[...byDate.entries()].map(([iso, list]) => `<p class="group-label">${esc(dayLabel(iso))}</p><ul class="list">${list.map((t) => todoRow(t, { compact: true })).join("")}</ul>`).join("")}</section>`);
   }
-  if (parts.length) {
-    tom.innerHTML = parts.join("");
-    bindTodoRows(tom, () => renderToday());
-  }
+  tom.innerHTML = parts.join("");
+  bindTodoRows(tom, () => renderToday());
+  $("#add-tomorrow").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = $("#tm-title").value.trim();
+    if (!title) return $("#tm-title").focus();
+    const next = new Date(`${data.date}T00:00:00`);
+    next.setDate(next.getDate() + 1);
+    try {
+      await api("/todos", { method: "POST", body: { title, priority: "medium", due: localISO(next) } });
+      toast("Added for tomorrow");
+      renderToday();
+    } catch (err) { toast(err.message, { error: true }); }
+  });
 
   const cal = $("#t-cal");
   if (data.events.length) {
